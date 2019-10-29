@@ -6,7 +6,7 @@ LABEL MAINTAINER="S.TAKEUCHI(KRB/SPG)" version="1.0" updated="191017" containeri
 # ENV             container docker
 # RUN             PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 
-ENV _ENVDEF_ pydev-ubnt17-scaru
+ENV _ENVDEF_ pydev-ubnt17
 
 RUN set -xeu && \
   # amend package source URL to old-releases
@@ -20,7 +20,7 @@ RUN set -xeu && \
   apt-get -y autoremove && \
   apt-get -y dist-upgrade && \
   # Install standard packages
-  apt-get -y install ubuntu-standard && \
+  DEBIAN_FRONTEND=noninteractive apt-get -y install ubuntu-standard && \
   apt-get -y install unattended-upgrades
 
 # Install required
@@ -31,7 +31,7 @@ RUN set -xeu && \
   apt-get -y autoremove && \
   /usr/bin/unattended-upgrade && \
   # install
-  apt-get -y install \
+  DEBIAN_FRONTEND=noninteractive apt-get -y install \
     sudo \
     nfs-common \
     mysql-client \
@@ -54,33 +54,76 @@ RUN set -xeu && \
   apt-get -y autoremove && \
   /usr/bin/unattended-upgrade && \
   # install
-  apt-get -y install \
-    curl
-
-# Google
+  DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    acl \
+    apport \
+    apport-symptoms \
+    at \
+    bcache-tools \
+    cryptsetup \
+    cryptsetup-bin \
+    curl \
+    debconf-i18n \
+    dirmngr \
+    dmeventd \
+    dns-root-data \
+    dnsmasq-base \
+    eatmydata \
+    ebtables \
+    gawk \
+    git \
+    git-man \
+    gnupg-l10n \
+    iputils-ping \
+    isc-dhcp-common \
+    less \
+    net-tools \
+    netcat-openbsd \
+    ntp \
+    os-prober \
+    software-properties-common \
+    tzdata \
+    udev \
+    uidmap \
+    xxd \
+    language-pack-ja
+    
+# Install alt2
 RUN set -xeu && \
-  # install
-  # export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" && \
-  # echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-  # zesty version is deleted: https://launchpad.net/ubuntu/+source/google-cloud-sdk/176.0.0-0ubuntu1~17.04.0
-  # sdk is supported after wheezy debian: https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu?hl=ja
-  echo "deb https://packages.cloud.google.com/apt cloud-sdk-wheezy main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
-  echo "deb http://packages.cloud.google.com/apt google-cloud-logging-wheezy main" | tee -a /etc/apt/sources.list.d/google-cloud-logging-wheezy.list && \
-  curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  echo "deb http://archive.canonical.com/ubuntu zesty partner" |   tee -a /etc/apt/sources.list.d/partner.list && \
   # remove package cache & update
   rm -rf /var/lib/apt/lists/* && \
   apt-get -y update && \
   apt-get -y autoremove && \
   /usr/bin/unattended-upgrade && \
-  apt-get -y --no-install-recommends install \
-    google-cloud-sdk \
-    # google-fluentd google-fluentd-catch-all-config \
-    cloud-init \
-    gce-compute-image-packages python-google-compute-engine && \
-  # install others
-  apt-get -y install \
-    less
+  # install
+  DEBIAN_FRONTEND=noninteractive apt-get -y install \
+    python3-apport \
+    python3-debian \
+    python3-newt \
+    python3-prettytable \
+    python3-problem-report \
+    python3-software-properties \
+    python3-systemd \
+    python3-wheel \
+    python3.5 \
+    python3-venv
+#    resolvconf \
+
+# Install alt3
+RUN set -xeu && \
+  # remove package cache & update
+  rm -rf /var/lib/apt/lists/* && \
+  apt-get update -q && \
+  apt-get -y autoremove && \
+  /usr/bin/unattended-upgrade && \
+  # install
+  # DEBIAN_FRONTEND=noninteractive apt-get install -y keyboard-configuration && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -q -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+    vim \
+    vim-common \
+    vim-runtime \
+    vim-tiny
+
 
 # slim image
 RUN set -xeu && \
@@ -92,8 +135,9 @@ RUN set -xeu && \
 # Install pylint
 RUN set -xeu && \
 #  pip3 install --upgrade --system pip3 && \
-  pip3 install --system \
-    pylint pip
+  pip3 --no-cache-dir install --upgrade setuptools && \
+  pip3 --no-cache-dir install --system pylint
+
 
 RUN set -xeu && \
   mkdir -p /opt/etc && \
