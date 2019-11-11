@@ -124,6 +124,13 @@ RUN set -xeu && \
     vim-runtime \
     vim-tiny
 
+# language
+RUN set -xeu && \
+    locale-gen en_US && \
+    locale-gen en_US.UTF-8 && \
+    locale-gen ja_JP && \
+    locale-gen ja_JP.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
 
 # slim image
 RUN set -xeu && \
